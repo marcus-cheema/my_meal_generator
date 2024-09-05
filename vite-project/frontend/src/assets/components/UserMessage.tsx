@@ -1,10 +1,15 @@
 import '../../App.css';
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 
-function UserMessage() {
+interface userMessageProps {
+    submittedMessage: string;
+}
+
+
+function UserMessage(props: userMessageProps) {
     return (
         <div className="card user-message">
-            <div className="card-body"></div>
+            <div className="card-body"> {props.submittedMessage} </div>
         </div>
     )
 }

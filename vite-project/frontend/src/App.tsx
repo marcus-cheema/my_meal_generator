@@ -4,9 +4,7 @@ import './App.css'
 
 function App() {
   return (
-    <div className="chat-bot-box">
-      <ChatBotBox/>
-    </div>
+    <ChatBotBox/> // See ChatBotBox.tsx
   )
   
 }
