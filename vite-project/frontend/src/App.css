@@ -19,10 +19,6 @@ body {
   justify-content:flex-end;
 }
 
-.user-message-container {
-  overflow-y: auto;
-}
-
 .user-text-button-container {
   display: flex;
   padding: 1rem;
@@ -35,10 +31,23 @@ body {
   font-weight: bold !important;
 }
 
+.user-message-container {
+  overflow-y: auto;
+}
+
 .user-message {
   width: 45vw !important;
   margin-left: 3vw;
   background-color:gray !important;
+  color:white !important;
+}
+
+.bot-response {
+  width: 45vw !important;
+  margin-right: 3vw;
+  background-color:#463f3f !important;
+  border: none !important;
+  color:white !important;
 }
 
 .text-input {

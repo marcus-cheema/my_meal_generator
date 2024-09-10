@@ -1,10 +1,9 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import openai
 from openai import OpenAI
 from dotenv import load_dotenv
-
 
 app = Flask(__name__)
 cors = CORS(app, origins='*') # cross origin resource sharing
@@ -28,13 +27,31 @@ def handlePrompt(prompt: str) -> str:
         return completion.choices[0].message.content
     except Exception as e:
         return str(e)
+    
 
-@app.route("/api/users", methods=['GET'])
-def users():
-    prompt = "I was wondering what ingredients I would need for a tomato soup?"
-    agentResponse = handlePrompt(prompt)
-    print(agentResponse)
-    return jsonify({"response": agentResponse})
+user_messages, bot_responses = {}, {} # global
+
+@app.route("/api/bot_response", methods=['GET']) # GET data from the backend server -> Frontend
+def bot_response():
+    latest_message_id = max(bot_responses.keys(), default=None)
+    bot_response = bot_responses.get(latest_message_id, "")
+    return jsonify({"response": bot_response})
+
+@app.route("/api/send_message", methods=['POST']) # POST data from the frontend -> backend
+def send_message():
+    data = request.json
+    user_message = data.get("message")
+    
+    user_message_ID = len(user_messages) + 1
+    user_messages[user_message_ID] = user_message
+    print(user_messages)
+
+    bot_response_ID = len(bot_responses) + 1
+    # bot_responses[bot_response_ID] = "I am the diet bot, DESTROYER of macros"
+
+    bot_responses[bot_response_ID] = handlePrompt(user_message)
+    print(bot_responses[bot_response_ID])
+    return jsonify({"response": user_message})
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080) # arbitrary port

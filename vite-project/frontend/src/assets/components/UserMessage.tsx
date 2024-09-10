@@ -1,12 +1,11 @@
 import '../../App.css';
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 
-interface userMessageProps {
+interface UserMessageProps {
     submittedMessage: string;
 }
 
-
-function UserMessage(props: userMessageProps) {
+function UserMessage(props: UserMessageProps) {
     return (
         <div className="card user-message">
             <div className="card-body"> {props.submittedMessage} </div>
