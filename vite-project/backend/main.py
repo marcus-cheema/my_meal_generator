@@ -27,6 +27,30 @@ def handlePrompt(prompt: str) -> str:
         return completion.choices[0].message.content
     except Exception as e:
         return str(e)
+
+def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
+    print(sex, age, weight, height, activityLevel)
+    activityMultipliers = {
+        0: 1.2,
+        1: 1.375,
+        2: 1.55,
+        3: 1.725,
+        4: 1.9
+    }
+
+    weightKG = weight * 0.453592
+    heightCM = height * 2.54
+
+    bmr = 0
+    if sex == 0: # Male
+        bmr = 88.362 + (13.397 * weightKG) + (4.799 * heightCM) - (5.677 * age)
+    else: # Female
+        bmr = 447.593 + (9.247 * weightKG) + (3.098 * heightCM) - (4.330 * age)
+
+    bmr = bmr * activityMultipliers.get(activityLevel, 1.2) # default 1.2
+    print(round(bmr))
+    return round(bmr)
+     
     
 
 user_messages, bot_responses = {}, {} # global
@@ -50,8 +74,29 @@ def send_message():
     # bot_responses[bot_response_ID] = "I am the diet bot, DESTROYER of macros"
 
     bot_responses[bot_response_ID] = handlePrompt(user_message)
-    print(bot_responses[bot_response_ID])
+    print(bot_responses)
     return jsonify({"response": user_message})
+
+@app.route("/api/calculate_bmr", methods=['POST'])
+def calculate_bmr():
+    data = request.json
+    sex, age, weight, height, activityLevel = data['sex'], data['age'], data['weight'], data['height'], data['activityLevel']
+    
+    # Transform parameters
+
+    sex = 0 if sex == "male" else 1
+    age =    int(age)
+    weight = int(weight)
+    height = int(height)
+    if   activityLevel == "sedentary": activityLevel = 0
+    elif activityLevel == "light":     activityLevel = 1
+    elif activityLevel == "moderate":  activityLevel = 2
+    elif activityLevel == "very":      activityLevel = 3
+    else:                              activityLevel = 4
+    
+    bmr = calculateBMR(sex, age, weight, height, activityLevel)    
+    print(bmr)
+    return jsonify({"response": data})
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080) # arbitrary port

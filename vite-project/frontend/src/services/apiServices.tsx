@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { UserFormProps } from '../assets/components/UserInfoForm'; // Import UserFormProps
 
 export async function sendMessage(userMessage: string) {
     console.log("I am being sent a message")
@@ -24,14 +25,16 @@ export async function getBotResponse() {
       })
       .catch(function(error) {
         console.log(error)
-      }
-    )
+      })
 }
 
-// useEffect(() => {
-//     getBotResponse();
-//   }, []);
-
-// useEffect(() => {
-//     sendMessage("Hi bot! I am the USER")
-//   }, []); // runs once
+export async function getBmrCalculation(formData: UserFormProps) {
+  return axios.post('http://127.0.0.1:8080/api/calculate_bmr', formData)
+    .then(function(response) {
+      console.log(response.data.response);
+      return response;
+    })
+    .catch(function(error) {
+      console.log("Error calculating BMR", error);
+    });
+}
