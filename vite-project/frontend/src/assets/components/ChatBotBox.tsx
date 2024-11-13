@@ -5,7 +5,7 @@ import TextInput from './TextInput';
 import UserTextButton from './UserTextButton';
 import UserMessage from './UserMessage';
 import BotResponse from './BotResponse';
-// import UserInfoForm from './UserInfoForm';
+import UserInfoForm from './UserInfoForm';
 import { sendMessage, getBotResponse } from '../../services/apiServices'
 
 function ChatBotBox() {
@@ -16,7 +16,7 @@ function ChatBotBox() {
 
     let [userMessageCount, setUserMessageCount] = useState(0) // keep track of # of valid messages for stable UI
     let [botResponseCount, setBotResponseCount] = useState(0)
-    
+
     let handleClick = async() => { // don't need to specify MouseEvent here, b/c already specified in UserTextButton
         if (userMessage !== '') { 
             setSubmittedMessages([...submittedMessages, userMessage]); // update the message display textbox
@@ -42,6 +42,9 @@ function ChatBotBox() {
 
     return(
         <div className="chat-bot-box">
+            <div className="user-info-form">
+                <UserInfoForm/>
+            </div>
             <div className="user-message-container">
                 {submittedMessages.map((message, index) => (
                     <div key={index}>

@@ -11,6 +11,7 @@ export interface UserFormProps {
     weight: string;
     height: string;
     activityLevel: string;
+    bmr: string;
 }
 
 function UserInfoForm() {
@@ -19,7 +20,8 @@ function UserInfoForm() {
         age: '',
         weight: '',
         height: '',
-        activityLevel: ''   
+        activityLevel: '',
+        bmr:'(Not Calculated)'
     });
 
     let handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -29,13 +31,20 @@ function UserInfoForm() {
         [name]: value,
         }));
     };
-  
+
     let handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
         try {
             let response = await getBmrCalculation(formData);
-            let bmr = response.data.response;
-            console.log("Here is the BMR", bmr);
+            let userBmr = 2000;
+            if (response != null) {
+                userBmr = response.data.response;
+            }
+            console.log("Here is the BMR", userBmr);
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                bmr: userBmr.toString()
+            }));
         } catch(error) {
             console.error("could not calculate BMR", error);
         }    
@@ -43,12 +52,12 @@ function UserInfoForm() {
     
     return(
         <>
-            <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bmrModal">Calculate BMR</button>
+            <button type="button" className="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#bmrModal">Calculate BMR</button>
             <div className="modal fade" id="bmrModal" tabIndex={-1} aria-labelledby='bmrModalLabel' aria-hidden="true">
                 <div className="modal-dialog">
                     <div className='modal-content'>
                         <div className='modal-header'>
-                            <h5 className="modal-title" id="bmrModalLabel">Calculate Your BMR</h5>
+                            <h5 className="modal-title" id="bmrModalLabel">Your BMR (Calories/Day): {formData.bmr}</h5>
                             <button
                                 type="button"
                                 className="btn-close"

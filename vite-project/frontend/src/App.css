@@ -19,6 +19,14 @@ body {
   justify-content:flex-end;
 }
 
+
+
+
+.user-info-form {
+  flex:auto; /* put on top*/
+  margin-top:2vh;
+  margin-right:35vw;
+}
 .user-text-button-container {
   display: flex;
   padding: 1rem;
@@ -49,7 +57,6 @@ body {
   border: none !important;
   color:white !important;
 }
-
 .text-input {
   max-width: 100% !important;
 }

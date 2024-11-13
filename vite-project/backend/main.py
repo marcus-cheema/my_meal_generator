@@ -4,6 +4,7 @@ from flask_cors import CORS
 import openai
 from openai import OpenAI
 from dotenv import load_dotenv
+from recipeScript import getTopRecipeMatches
 
 app = Flask(__name__)
 cors = CORS(app, origins='*') # cross origin resource sharing
@@ -28,6 +29,7 @@ def handlePrompt(prompt: str) -> str:
     except Exception as e:
         return str(e)
 
+# Use Harris-Benedict equation for BMR calculation, w/ Activity Level Multipliers.
 def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
     print(sex, age, weight, height, activityLevel)
     activityMultipliers = {
@@ -40,8 +42,8 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
 
     weightKG = weight * 0.453592
     heightCM = height * 2.54
-
     bmr = 0
+    
     if sex == 0: # Male
         bmr = 88.362 + (13.397 * weightKG) + (4.799 * heightCM) - (5.677 * age)
     else: # Female
@@ -49,10 +51,9 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
 
     bmr = bmr * activityMultipliers.get(activityLevel, 1.2) # default 1.2
     print(round(bmr))
+    userBMR = round(bmr)
     return round(bmr)
      
-    
-
 user_messages, bot_responses = {}, {} # global
 
 @app.route("/api/bot_response", methods=['GET']) # GET data from the backend server -> Frontend
@@ -83,20 +84,20 @@ def calculate_bmr():
     sex, age, weight, height, activityLevel = data['sex'], data['age'], data['weight'], data['height'], data['activityLevel']
     
     # Transform parameters
-
-    sex = 0 if sex == "male" else 1
-    age =    int(age)
-    weight = int(weight)
-    height = int(height)
-    if   activityLevel == "sedentary": activityLevel = 0
-    elif activityLevel == "light":     activityLevel = 1
-    elif activityLevel == "moderate":  activityLevel = 2
-    elif activityLevel == "very":      activityLevel = 3
-    else:                              activityLevel = 4
+    intSex    = 0 if sex == "male" else 1
+    intAge    = int(age)
+    intWeight = int(weight)
+    intHeight = int(height)
+    intActivityLevel = 0 # Assume 0 if not given.
+    if   activityLevel == "sedentary": intActivityLevel = 0
+    elif activityLevel == "light":     intActivityLevel = 1
+    elif activityLevel == "moderate":  intActivityLevel = 2
+    elif activityLevel == "very":      intActivityLevel = 3
+    elif activityLevel == "extra":     intActivityLevel = 4
     
-    bmr = calculateBMR(sex, age, weight, height, activityLevel)    
+    bmr = calculateBMR(intSex, intAge, intWeight, intHeight, intActivityLevel) # don't change types of given vars
     print(bmr)
-    return jsonify({"response": data})
+    return jsonify({"response": bmr})
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080) # arbitrary port
