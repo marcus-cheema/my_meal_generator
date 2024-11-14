@@ -3,7 +3,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import openai
 from dotenv import load_dotenv
-from utilities.allRecipeMethods import calculateBMR, getTopRecipeMatches
+from utilities.allRecipeMethods import getTopRecipeMatches, calculateBMR, isRecipeRequest
+from utilities.allRecipeMethods import userBMR
 
 app = Flask(__name__)
 cors = CORS(app, origins='*') # cross origin resource sharing
@@ -12,18 +13,22 @@ load_dotenv() # Fetch API Key
 API_KEY=os.getenv("API_KEY")
 openai.api_key = API_KEY
 
+def setUserBMR(bmr): # To update Global myBMR
+    global userBMR
+    userBMR = bmr
+
 def correctUserPrompt(prompt: str) -> str:
     completion = openai.ChatCompletion.create(
-        model="gpt-4"
+        model="gpt-4",
         messages=[
             {
                 "role":"system",
                 "content": ("You are a helpful assistant. Your task is to correct and clarify user input, "
                         "focusing on making it clear, with recipe creation in mind. Do not change the meaning"
-                        "of the text")
+                        "of the text, and do not respond to the user's message.")
             },
             {
-                "role":"user"
+                "role":"user",
                 "content": prompt
             }
         ]
@@ -32,9 +37,13 @@ def correctUserPrompt(prompt: str) -> str:
 # Handle General Prompts
 def handlePrompt(prompt: str) -> str:
     try:
-        if isRecipeRequest(prompt):
-            recipes = getTopRecipeMatches(prompt, bmr) # MODIFY LATER
-            return recipes # WILL NEED TO FORMAT
+        correctedPrompt = correctUserPrompt(prompt)
+        print("CORRECTED PROMPT:", correctedPrompt)
+        if isRecipeRequest(correctedPrompt):
+            print(userBMR)
+            recipes = getTopRecipeMatches(prompt, userBMR, 3) # tasteProfile, BMR, and recipes to return (1 default)
+            print(recipes)
+            return recipes
         else:
             completion = openai.ChatCompletion.create(
                 model="gpt-4",
@@ -50,7 +59,7 @@ def handlePrompt(prompt: str) -> str:
                     }
                 ]
             )
-        return completion.choices[0].message.content
+            return completion.choices[0].message.content
     except Exception as e:
         return str(e)
 
@@ -93,10 +102,11 @@ def calculate_bmr():
     elif activityLevel == "moderate":  intActivityLevel = 2
     elif activityLevel == "very":      intActivityLevel = 3
     elif activityLevel == "extra":     intActivityLevel = 4
-    
-    bmr = calculateBMR(intSex, intAge, intWeight, intHeight, intActivityLevel) # don't change types of given vars
-    print(bmr)
-    return jsonify({"response": bmr})
+
+    currBMR = calculateBMR(intSex, intAge, intWeight, intHeight, intActivityLevel) # don't change types of given vars
+    setUserBMR(currBMR) # update BMR globally
+    print(userBMR)
+    return jsonify({"response": currBMR})
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080) # arbitrary port

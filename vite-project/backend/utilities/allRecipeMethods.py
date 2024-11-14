@@ -4,16 +4,20 @@ import numpy as np
 import time
 import csv
 import os
-from textblob import TextBlob
+# from textblob import TextBlob
 import re
-
 from fuzzywuzzy import fuzz
+from typing import List, Pattern
 
+BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
+BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
+mergedPath = os.path.join(BASE_DIR, 'mergedDF.csv')
+
+mergedDF = pd.read_csv(mergedPath) # Global Pandas DataFrame
 userBMR = 2000 # Global Default
 
 # === Return Top Matching Recipes Based on User Input === #
-def getTopRecipeMatches(mergedDF: pd.DataFrame, tasteProfile: str, bmr: int, nRecipes: int) -> list:
-    
+def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     acceptedError = .3 # alter value... (should be < 1)
     caloriesPerMeal = bmr * 0.34
     caloricDeviation = caloriesPerMeal * acceptedError
@@ -23,7 +27,7 @@ def getTopRecipeMatches(mergedDF: pd.DataFrame, tasteProfile: str, bmr: int, nRe
     validCaloricRecipes = mergedDF[(mergedDF['calories'] >= minCaloriesPerMeal) & (mergedDF['calories'] <= maxCaloriesPerMeal)]
     
     if len(validCaloricRecipes) < nRecipes:
-        raise ValueError(f'There are not nRecipes in selected_recipes_df. Choose value lower than {len(selected_recipes_df)}')
+        raise ValueError(f'There are not nRecipes in selected_recipes_df. Choose value lower than {len(validCaloricRecipes)}')
 
     print(f'# of Selected Recipes: {len(validCaloricRecipes)}')
     similarityScores = []
@@ -49,13 +53,24 @@ def getTopRecipeMatches(mergedDF: pd.DataFrame, tasteProfile: str, bmr: int, nRe
     print(f'Fuzzy Algorithm Time: {round(time.time() - start, 3)} seconds')
     
     similarityScores.sort(key=lambda x: x[1], reverse=True) # sort by highest mean
+    
     topIndices = [i for i, _ in similarityScores] # return indices
     topNIndices = topIndices[:nRecipes]
+    
     topRecipes = [mergedDF.iloc[index] for index in topNIndices]
     topRecipesName = [mergedDF['name'][index] for index in topNIndices]
-    # print(topRecipesName)
+    topRecipesURL  = [mergedDF['url'][index] for index in topNIndices] 
+    topRecipesSummary = [mergedDF['summary'][index] for index in topNIndices]
+    if (nRecipes == 1): recipeStr = f'Here is the best match: \n'
+    recipeStr = f'Here are {nRecipes} best matches: \n'
+    for i in range(nRecipes):
+        recipeStr += f'{i + 1}) '
+        recipeStr += topRecipesName[i] + '\n'
+        # recipeStr += topRecipesSummary[i] + '\n'
+        recipeStr += topRecipesURL[i] + '\n\n'
+    # recipeStr += topRecipesName + '\n'
     
-    return topRecipes
+    return recipeStr
 
 # === Use Harris-Benedict equation for BMR calculation, w/ Activity Level Multipliers === #
 def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
@@ -83,31 +98,34 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
     return round(bmr)
 
 # === Check if User is Requesting for Recipe === #
-def isRecipeRequest(prompt: str) -> bool:
-    recipePatterns = [
-        r'\brecipe for\b',
-        r'how (do|can|to) (i|you) (make|prepare|cook)',
-        r'looking for (a|some) (recipe|dish)',
-        r'what (can|should) I (cook|bake|make|prepare)',
-        r'recommend (a|some) (dish|recipe|meal)',
-        r'\bmake a recipe\b',
-        r'\bcreate a recipe\b',
-        r'give me (a|some) recipe',
-        r'\b(recipe|dish) that has\b',
+def isRecipeRequest(prompt: str) -> bool: # Given a Corrected Prompt, see if it's a Recipe Request
+    print(prompt) 
+    recipePatterns = [    
+        r'\brecipe(s)? for\b',
+        r'\b(how to|how do|how can) (i|you) (make|prepare|cook|bake)\b',
+        r'\b(looking for|in need of)? (a|some) (recipe|dish|meal)\b',
+        r'\b(what (can|should) i|what (can|should) you)? (cook|bake|make|prepare)\b',
+        r'\b(recommend|suggest)? (a|some) (dish|recipe|meal)\b',
+        r'\b(make|create)? (a|some) recipe\b',
+        r'\bgive me (a|some) recipe(s)?\b',  # Popular Option
+        r'\b(recipe|dish) that (has|contains|includes)\b',
         r'\bwhat are some good recipes\b',
-        r'i want (a|some) recipe'
+        r'\b(i|we)? (want|\'d like|need|\'re looking for)? (a|some) recipe(s)?\b',
+        r'\b(i|we)\'d (like|want|need) (a|some) (recipe(s)?|dish(es)?)\b',
+        r'\b(i|we)? (would|want|need) (like)? (something|a recipe|recipe(s)?|dish)'
     ]
-    blob = TextBlob(prompt)
-    correctedPrompt = str(blob.correct())
-    correctedPrompt = correctedPrompt.lower()
+    prompt = prompt.lower()
     for pattern in recipePatterns:
-        if (re.search(pattern, prompt)): return True
+        if (re.search(pattern, prompt)): # REGEX, then Prompt
+            print("User is Requesting a Recipe")
+            return True
     return False
 
 def setUserBMR(bmr):
     global userBMR
     userBMR = bmr
 
+# === For Testing === #
 def main():
     tasteProfile = "I want to know how to make a chicken fettucini alfredo with broccoli"
     nRecipes = 5
@@ -116,7 +134,7 @@ def main():
     BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
     # print(BASE_DIR)
     
-    def loadData(): # cache data loads
+    def loadData():
         embeddedPath = os.path.join(BASE_DIR, 'embedded_recipes.csv') 
         recipePath =  os.path.join(BASE_DIR, 'all_recipes_scraped.csv')
         return pd.read_csv(recipePath), pd.read_csv(embeddedPath)
@@ -128,9 +146,11 @@ def main():
     
     recipes, recipeKeyWords = loadData()
     mergedDF = preprocessData(recipes, recipeKeyWords)
-    print(isRecipeRequest("I wan a recip for chrke and ric"))
-    # topNRecipes = getTopRecipeMatches(mergedDF, tasteProfile, userBMR, nRecipes)
-    # print(topNRecipes)
+    mergedPath = os.path.join(BASE_DIR, 'mergedDF.csv')
+    # mergedDF.to_csv(mergedPath, index=False)
+    # print(isRecipeRequest("Please, my beautiful chatbot, can I please have a recipe that incorporates ..."))
+    topRecipes = getTopRecipeMatches(tasteProfile, 2500, 5)
+    print(topRecipes)
 
 # This block checks if the script is being run directly, not imported as a module
 if __name__ == "__main__":

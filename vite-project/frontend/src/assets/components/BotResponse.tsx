@@ -6,9 +6,15 @@ interface BotResponseProps {
 }
 
 function BotResponse(props: BotResponseProps) {
+    let formattedResponse = props.responseMessage.split('\n').map((line, index) => (
+        <span key={index}>
+            {line}
+            <br />
+        </span>
+    ));
     return (
         <div className="card bot-response">
-            <div className="card-body"> {props.responseMessage} </div>
+            <div className="card-body"> {formattedResponse} </div>
         </div>
     )
 }
