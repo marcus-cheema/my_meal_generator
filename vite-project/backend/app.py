@@ -17,23 +17,45 @@ def setUserBMR(bmr): # To update Global myBMR
     global userBMR
     userBMR = bmr
 
+# === Verifies if Prompt is On Topic, then Corrects Spelling === #
 def correctUserPrompt(prompt: str) -> str:
     completion = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {
-                "role":"system",
-                "content": ("You are a helpful assistant. Your task is to correct and clarify user input, "
-                        "focusing on making it clear, with recipe creation in mind. Do not change the meaning"
-                        "of the text, and do not respond to the user's message.")
+                "role": "system",
+                "content": ("You are a spell-checking assistant for recipe and food-related prompts ONLY. "
+                          "First, verify if the input is related to recipes, cooking, food, ingredient substitutes, "
+                          "or general health/nutrition. If the input is OFF-TOPIC, respond EXACTLY with: "
+                          "'I can only assist with recipe, cooking, and nutrition-related questions.' "
+                          "If the input IS relevant, your ONLY task is to correct misspelled words. Do not make "
+                          "any other changes. Do not add punctuation, do not rephrase, do not add or remove words, "
+                          "do not change grammar, and do not provide any additional commentary.")
             },
             {
-                "role":"user",
+                "role": "user",
+                "content": "Example off-topic: 'How do I tie my shoes'"
+            },
+            {
+                "role": "assistant",
+                "content": "I can only assist with recipe, cooking, and nutrition-related questions."
+            },
+            {
+                "role": "user",
+                "content": "Example on-topic: 'How to make choclate chip cookeis'"
+            },
+            {
+                "role": "assistant",
+                "content": "How to make chocolate chip cookies"
+            },
+            {
+                "role": "user",
                 "content": prompt
             }
         ]
     )
-    return completion.choices[0].message.content # return corrected prompt
+    return completion.choices[0].message.content
+
 # Handle General Prompts
 def handlePrompt(prompt: str) -> str:
     try:

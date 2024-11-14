@@ -19,7 +19,7 @@ userBMR = 2000 # Global Default
 # === Return Top Matching Recipes Based on User Input === #
 def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     acceptedError = .3 # alter value... (should be < 1)
-    caloriesPerMeal = bmr * 0.34
+    caloriesPerMeal = bmr * 0.3
     caloricDeviation = caloriesPerMeal * acceptedError
     minCaloriesPerMeal, maxCaloriesPerMeal = caloriesPerMeal - caloricDeviation, caloriesPerMeal + caloricDeviation
 
@@ -147,9 +147,9 @@ def main():
     recipes, recipeKeyWords = loadData()
     mergedDF = preprocessData(recipes, recipeKeyWords)
     mergedPath = os.path.join(BASE_DIR, 'mergedDF.csv')
-    # mergedDF.to_csv(mergedPath, index=False)
+    mergedDF.to_csv(mergedPath, index=False)
     # print(isRecipeRequest("Please, my beautiful chatbot, can I please have a recipe that incorporates ..."))
-    topRecipes = getTopRecipeMatches(tasteProfile, 2500, 5)
+    topRecipes = getTopRecipeMatches(tasteProfile, 2000, 5)
     print(topRecipes)
 
 # This block checks if the script is being run directly, not imported as a module

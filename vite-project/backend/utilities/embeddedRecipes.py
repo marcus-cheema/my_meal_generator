@@ -31,14 +31,13 @@ def main():
     BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
     BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
     
-    recipePath   = os.path.join(BASE_DIR, 'dat', 'all_recipes_scraped.csv')
-    embeddedPath = os.path.join(BASE_DIR, 'dat', 'embedded_recipes.csv')
+    recipePath   = os.path.join(BASE_DIR, 'all_recipes_scraped.csv')
+    embeddedPath = os.path.join(BASE_DIR, 'embedded_recipes.csv')
 
-    n = 2000
     allRecipes = pd.read_csv(recipePath)
-    sampleRecipes = selectRecipes(allRecipes, n) # Select n Recipes
-
-    embeddedRecipes = makeRecipeKeyWords(sampleRecipes)
+    # n = 2000
+    # sampleRecipes = selectRecipes(allRecipes, n) # Select n Recipes
+    embeddedRecipes = makeRecipeKeyWords(allRecipes)
     embeddedRecipes.to_csv(embeddedPath, index=False)
 
 if __name__ == "__main__":
