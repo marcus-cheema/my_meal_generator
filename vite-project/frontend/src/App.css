@@ -4,39 +4,39 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background-color: black;
+  background-color: #260000 !important;
 }
-  
+
 .chat-bot-box {
   display: flex;
   flex-direction:column;
-  background-color: #463f3f; /* Optional background */
   margin: 0;
   padding: 0px;
   width:50vw;
   height:100vh;
   align-items:center;
   justify-content:flex-end;
+  background-color: #654321; /* Optional background */
 }
-
-
-
 
 .user-info-form {
   flex:auto; /* put on top*/
   margin-top:2vh;
   margin-right:35vw;
 }
+
 .user-text-button-container {
   display: flex;
   padding: 1rem;
-  width: 100%
+  width: 100%;
+  color: #260000 !important;
 }
 
 .user-text-button {
   margin-left: 1vw !important;
   font-size:1rem !important;
   font-weight: bold !important;
+  color:#260000 !important;
 }
 
 .user-message-container {
@@ -46,17 +46,30 @@ body {
 .user-message {
   width: 45vw !important;
   margin-left: 3vw;
-  background-color:gray !important;
+  background-color: #533312 !important;
   color:white !important;
 }
 
 .bot-response {
   width: 45vw !important;
   margin-right: 3vw;
-  background-color:#463f3f !important;
+  background-color:#654321 !important;
   border: none !important;
   color:white !important;
 }
+
 .text-input {
   max-width: 100% !important;
+  background-color: #533312 !important;
+  border-color:#533312 !important;
+  color:white !important;
+}
+
+.text-input::placeholder {
+  color: rgb(130, 130, 130) !important; /* Change this to your desired placeholder color */
+}
+
+.btn {
+  background-color: #533312 !important;
+  color: white !important;
 }

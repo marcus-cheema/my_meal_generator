@@ -16,7 +16,7 @@ export interface UserFormProps {
 
 function UserInfoForm() {
     let [formData, setFormData] = useState<UserFormProps>({ //default
-        sex: '',
+        sex: 'male', // default male
         age: '',
         weight: '',
         height: '',
@@ -34,25 +34,33 @@ function UserInfoForm() {
 
     let handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            let response = await getBmrCalculation(formData);
-            let userBmr = 2000;
-            if (response != null) {
-                userBmr = response.data.response;
-            }
-            console.log("Here is the BMR", userBmr);
-            setFormData(prevFormData => ({
-                ...prevFormData,
-                bmr: userBmr.toString()
-            }));
-        } catch(error) {
-            console.error("could not calculate BMR", error);
-        }    
+        // Check Validity of Form Data    
+        if (!formData['age'] || 
+            !formData['weight'] ||
+            !formData['height']) { console.error("Invalid Parameters"); }
+        // If form Data is Valid
+        else { 
+            try {
+                let response = await getBmrCalculation(formData);
+                let userBmr = 2000;
+                if (response != null) {
+                    userBmr = response.data.response;
+                }
+                console.log("Here is the BMR", userBmr);
+                setFormData(prevFormData => ({
+                    ...prevFormData,
+                    bmr: userBmr.toString()
+                }));
+            } catch(error) {
+                console.error("could not calculate BMR", error);
+            }    
+        }
+        console.log(formData);
     }   
     
     return(
         <>
-            <button type="button" className="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#bmrModal">Calculate BMR</button>
+            <button type="button" className="btn" data-bs-toggle="modal" data-bs-target="#bmrModal">Calculate BMR</button>
             <div className="modal fade" id="bmrModal" tabIndex={-1} aria-labelledby='bmrModalLabel' aria-hidden="true">
                 <div className="modal-dialog">
                     <div className='modal-content'>

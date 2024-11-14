@@ -12,7 +12,7 @@ function UserTextButton(props: UserTextButton) { // have to use hook in order to
     return(
         <button 
             type="button" 
-            className="btn btn-primary btn-lg user-text-button"
+            className="btn" 
             onClick= { (e: MouseEvent) => {
                 props.handleClick(e)
             }}

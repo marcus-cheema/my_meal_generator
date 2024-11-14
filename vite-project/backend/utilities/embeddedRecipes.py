@@ -4,8 +4,6 @@ import pandas as pd
 import time
 import csv
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 def selectRecipes(recipes: pd.DataFrame, n: int) -> pd.DataFrame: # For Processing Efficiency in Testing
     if n > len(recipes): raise ValueError("Choose smaller n")
     selectedRecipes = recipes.head(n)
@@ -28,12 +26,20 @@ def makeRecipeKeyWords(sampleRecipes: pd.DataFrame) -> pd.DataFrame:
     recipeKeyWords = pd.DataFrame(recipeKeyWords)
     return recipeKeyWords
 
-filePath = os.path.join(BASE_DIR, '.venv', 'dat', 'all_recipes_scraped.csv')
 
-recipeCount = 2000
-allRecipes = pd.read_csv(filePath)
-sampleRecipes = selectRecipes(allRecipes, recipeCount)
+def main():
+    BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
+    BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
+    
+    recipePath   = os.path.join(BASE_DIR, 'dat', 'all_recipes_scraped.csv')
+    embeddedPath = os.path.join(BASE_DIR, 'dat', 'embedded_recipes.csv')
 
-embeddedRecipes = makeRecipeKeyWords(sampleRecipes)
-embeddedPath = os.path.join(BASE_DIR, '.venv', 'dat', 'embedded_recipes.csv')
-embeddedRecipes.to_csv(embeddedPath, index=False)
+    n = 2000
+    allRecipes = pd.read_csv(recipePath)
+    sampleRecipes = selectRecipes(allRecipes, n) # Select n Recipes
+
+    embeddedRecipes = makeRecipeKeyWords(sampleRecipes)
+    embeddedRecipes.to_csv(embeddedPath, index=False)
+
+if __name__ == "__main__":
+    main()

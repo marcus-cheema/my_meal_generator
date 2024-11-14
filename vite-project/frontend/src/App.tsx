@@ -6,9 +6,8 @@ import './App.css'
 function App() {
   return ( // see ChatBotBox.tsx
     <div>
-      {/* <p>{message}</p> */}
       <ChatBotBox/>
-    </div>  
+    </div>
   )
 }
 

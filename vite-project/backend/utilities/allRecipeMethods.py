@@ -4,14 +4,18 @@ import numpy as np
 import time
 import csv
 import os
+from textblob import TextBlob
+import re
+
 from fuzzywuzzy import fuzz
 
 userBMR = 2000 # Global Default
 
 # === Return Top Matching Recipes Based on User Input === #
-def getTopRecipeMatches(mergedDF: pd.DataFrame, tasteProfile: str, caloriesPerMeal: int, nRecipes: int) -> list:
+def getTopRecipeMatches(mergedDF: pd.DataFrame, tasteProfile: str, bmr: int, nRecipes: int) -> list:
     
     acceptedError = .3 # alter value... (should be < 1)
+    caloriesPerMeal = bmr * 0.34
     caloricDeviation = caloriesPerMeal * acceptedError
     minCaloriesPerMeal, maxCaloriesPerMeal = caloriesPerMeal - caloricDeviation, caloriesPerMeal + caloricDeviation
 
@@ -78,21 +82,43 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
     setUserBMR(round(bmr)) # Whenever this function is called, update the user's BMR
     return round(bmr)
 
+# === Check if User is Requesting for Recipe === #
+def isRecipeRequest(prompt: str) -> bool:
+    recipePatterns = [
+        r'\brecipe for\b',
+        r'how (do|can|to) (i|you) (make|prepare|cook)',
+        r'looking for (a|some) (recipe|dish)',
+        r'what (can|should) I (cook|bake|make|prepare)',
+        r'recommend (a|some) (dish|recipe|meal)',
+        r'\bmake a recipe\b',
+        r'\bcreate a recipe\b',
+        r'give me (a|some) recipe',
+        r'\b(recipe|dish) that has\b',
+        r'\bwhat are some good recipes\b',
+        r'i want (a|some) recipe'
+    ]
+    blob = TextBlob(prompt)
+    correctedPrompt = str(blob.correct())
+    correctedPrompt = correctedPrompt.lower()
+    for pattern in recipePatterns:
+        if (re.search(pattern, prompt)): return True
+    return False
+
 def setUserBMR(bmr):
     global userBMR
     userBMR = bmr
 
 def main():
-    caloriesPerDay = round(userBMR * 0.34)
-    print(caloriesPerDay)
     tasteProfile = "I want to know how to make a chicken fettucini alfredo with broccoli"
     nRecipes = 5
     
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
+    BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
+    # print(BASE_DIR)
     
     def loadData(): # cache data loads
-        embeddedPath = os.path.join(BASE_DIR, '.venv', 'dat', 'embedded_recipes.csv') 
-        recipePath =  os.path.join(BASE_DIR, '.venv', 'dat', 'all_recipes_scraped.csv')
+        embeddedPath = os.path.join(BASE_DIR, 'embedded_recipes.csv') 
+        recipePath =  os.path.join(BASE_DIR, 'all_recipes_scraped.csv')
         return pd.read_csv(recipePath), pd.read_csv(embeddedPath)
     
     def preprocessData(recipes, recipeKeyWords): # Merge once at startup
@@ -102,7 +128,8 @@ def main():
     
     recipes, recipeKeyWords = loadData()
     mergedDF = preprocessData(recipes, recipeKeyWords)
-    topNRecipes = getTopRecipeMatches(mergedDF, tasteProfile, caloriesPerMeal, nRecipes)
+    print(isRecipeRequest("I wan a recip for chrke and ric"))
+    # topNRecipes = getTopRecipeMatches(mergedDF, tasteProfile, userBMR, nRecipes)
     # print(topNRecipes)
 
 # This block checks if the script is being run directly, not imported as a module
