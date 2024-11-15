@@ -1,8 +1,9 @@
-import '../../App.css';
+// import '../../App.css';
+// import styles from './UserInfoForm.module.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
-import { getBmrCalculation } from '../../services/apiServices';
+import { getBmrCalculation } from '../../../services/apiServices';
 import React, { useState } from 'react';
 
 export interface UserFormProps {
@@ -148,13 +149,7 @@ function UserInfoForm() {
                                 </div>
                                 
                                 <div className="modal-footer">
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-secondary" 
-                                        data-bs-dismiss="modal"
-                                    >
-                                    Close
-                                    </button>
+                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     <button type="submit" className="btn btn-primary">Calculate</button>
                                 </div>
                             </form>

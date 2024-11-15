@@ -1,0 +1,39 @@
+.chatBotBox {
+    display: flex;
+    flex-direction: column; /* stack elements vertically */
+    margin: 0;
+    padding: 0px;
+    width: 50vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: flex-end; /* Position messages at bottom */
+    background-color: #386150;
+    overflow-y: auto;
+}
+
+.userMessageContainer {
+    overflow-y:auto;
+}
+
+.userMessageContainer::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.userMessageContainer::-webkit-scrollbar-thumb { /* rounded scrollbar thumb */
+    background-color: #4A826B;
+    border-radius: 5px;
+}
+
+.userFormContainer {
+    flex:auto;
+    align-items:flex-end;
+    padding:0.5rem;
+}
+
+.inputMessage {
+    display: flex;
+    align-items:flex-end;
+    padding: 1rem;
+    width: 50vw;
+    color: #386150;
+}

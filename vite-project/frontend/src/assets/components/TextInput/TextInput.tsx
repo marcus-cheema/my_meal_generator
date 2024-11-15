@@ -1,6 +1,9 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-import '../../App.css'
+import styles from './TextInput.module.css'
+// import '../../App.css'
 import { KeyboardEvent } from 'react'
+import TextareaAutosize from 'react-textarea-autosize';
+
 
 interface TextInputProps {
     userMessage: string;
@@ -8,16 +11,12 @@ interface TextInputProps {
     onKeyDown: (e: KeyboardEvent) => void;
 }
 
-
 function TextInput(props: TextInputProps) {
 
-    // let [userMessage, setUserMessage] = useState('')
-
     return (
-        <input 
-            className="form-control form-control-lg text-input"
+        <TextareaAutosize
+            className={`${styles.textInput} form-control form-control-lg`}
             id="textInput" 
-            type="text" 
             placeholder="Ask a question"
             value={props.userMessage}
             onChange={ (e) => { // in the event that the User changes the input, the event will set the userMessage to current message.

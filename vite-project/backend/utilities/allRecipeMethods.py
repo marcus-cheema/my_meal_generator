@@ -60,9 +60,11 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     topRecipes = [mergedDF.iloc[index] for index in topNIndices]
     topRecipesName = [mergedDF['name'][index] for index in topNIndices]
     topRecipesURL  = [mergedDF['url'][index] for index in topNIndices] 
-    topRecipesSummary = [mergedDF['summary'][index] for index in topNIndices]
+    # topRecipesSummary = [mergedDF['summary'][index] for index in topNIndices]
+    
     if (nRecipes == 1): recipeStr = f'Here is the best match: \n'
-    recipeStr = f'Here are {nRecipes} best matches: \n'
+    else: recipeStr = f'Here are {nRecipes} best matches: \n'
+    
     for i in range(nRecipes):
         recipeStr += f'{i + 1}) '
         recipeStr += topRecipesName[i] + '\n'
@@ -98,7 +100,7 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
     return round(bmr)
 
 # === Check if User is Requesting for Recipe === #
-def isRecipeRequest(prompt: str) -> bool: # Given a Corrected Prompt, see if it's a Recipe Request
+def isRecipeRequest(prompt: str) -> bool:
     print(prompt) 
     recipePatterns = [    
         r'\brecipe(s)? for\b',
@@ -107,12 +109,12 @@ def isRecipeRequest(prompt: str) -> bool: # Given a Corrected Prompt, see if it'
         r'\b(what (can|should) i|what (can|should) you)? (cook|bake|make|prepare)\b',
         r'\b(recommend|suggest)? (a|some) (dish|recipe|meal)\b',
         r'\b(make|create)? (a|some) recipe\b',
-        r'\bgive me (a|some) recipe(s)?\b',  # Popular Option
+        r'\bgive me (a|some|the) (\w*)? recipe(s)?\b',  # Popular Option
         r'\b(recipe|dish) that (has|contains|includes)\b',
         r'\bwhat are some good recipes\b',
         r'\b(i|we)? (want|\'d like|need|\'re looking for)? (a|some) recipe(s)?\b',
-        r'\b(i|we)\'d (like|want|need) (a|some) (recipe(s)?|dish(es)?)\b',
-        r'\b(i|we)? (would|want|need) (like)? (something|a recipe|recipe(s)?|dish)'
+        r'\b(i|we)\'d (like|want|need) (a|some)? (recipe(s)?|dish(es)?)\b',
+        r'\b(i|we)? (would|want|need) (like|the|a)? (something|a recipe|recipe(s)?|dish)'
     ]
     prompt = prompt.lower()
     for pattern in recipePatterns:

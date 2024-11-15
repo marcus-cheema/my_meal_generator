@@ -1,7 +1,8 @@
-import '../../App.css';
+// import '../../App.css';
+import styles from './InputButton.module.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import { MouseEvent } from 'react'
-import './TextInput'
+import '../TextInput/TextInput'
 
 interface UserTextButton {
     handleClick: (e: MouseEvent) => void
@@ -12,7 +13,7 @@ function UserTextButton(props: UserTextButton) { // have to use hook in order to
     return(
         <button 
             type="button" 
-            className="btn" 
+            className={`${styles.inputButton} btn`}
             onClick= { (e: MouseEvent) => {
                 props.handleClick(e)
             }}

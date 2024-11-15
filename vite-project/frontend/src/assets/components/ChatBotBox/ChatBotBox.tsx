@@ -1,12 +1,13 @@
-import '../../App.css';
+// import '../../App.css';
+import styles from './ChatBotBox.module.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import { useState, KeyboardEvent } from 'react'
-import TextInput from './TextInput';
-import UserTextButton from './UserTextButton';
-import UserMessage from './UserMessage';
-import BotResponse from './BotResponse';
-import UserInfoForm from './UserInfoForm';
-import { sendMessage, getBotResponse } from '../../services/apiServices'
+import TextInput from '../TextInput/TextInput';
+import InputButton from '../InputButton/InputButton';
+import UserMessage from '../UserMessage/UserMessage';
+import BotResponse from '../BotResponse/BotResponse';
+import UserInfoForm from '../UserInfoForm/UserInfoForm';
+import { sendMessage, getBotResponse } from '../../../services/apiServices'
 
 function ChatBotBox() {
     let [userMessage, setUserMessage] = useState('') // manage the state of what is in the TextInput. For every change, update userMessage
@@ -18,7 +19,9 @@ function ChatBotBox() {
     let [botResponseCount, setBotResponseCount] = useState(0)
 
     let handleClick = async() => { // don't need to specify MouseEvent here, b/c already specified in UserTextButton
-        if (userMessage !== '') { 
+        setUserMessage('');
+        if (userMessage !== '') {
+            setUserMessage('');
             setSubmittedMessages([...submittedMessages, userMessage]); // update the message display textbox
             setUserMessageCount(userMessageCount + 1); 
             try {
@@ -31,21 +34,25 @@ function ChatBotBox() {
             } catch(error) {
                 console.error("Error sending message", error);
             }
-        setUserMessage(''); // delete typed message after submission
+        // setUserMessage(''); // delete typed message after submission
         console.log("We have " + botResponseCount + " messages"); // DEBUG
         }
     }
 
     let handleEnter = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') { handleClick(); }
+        if (e.key === 'Enter') { 
+            e.preventDefault();
+            handleClick(); 
+        }
     }
 
     return(
-        <div className="chat-bot-box">
-            <div className="user-info-form">
+        <div className={styles.chatBotBox}>
+            <div className={styles.userFormContainer}>
                 <UserInfoForm/>
             </div>
-            <div className="user-message-container">
+
+            <div className={styles.userMessageContainer}>
                 {submittedMessages.map((message, index) => (
                     <div key={index}>
                         <UserMessage submittedMessage={message} />
@@ -55,11 +62,12 @@ function ChatBotBox() {
                     </div>
                 ))}
             </div>
-            
-            <div className="user-text-button-container">
+
+            <div className={styles.inputMessage}>
                 <TextInput userMessage={userMessage} setUserMessage={setUserMessage} onKeyDown={handleEnter}/>
-                <UserTextButton handleClick={ handleClick } />
+                <InputButton handleClick={ handleClick } />
             </div>
+
         </div>
     )
 }

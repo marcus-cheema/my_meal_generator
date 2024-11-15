@@ -1,0 +1,23 @@
+.textInput {
+  max-width: 50vw;
+  background-color: #2D4E40;
+  border: none;
+  color:white;
+  resize:none; /* user cannot resize */
+}
+
+.textInput:focus { 
+  background-color: #2D4E40;
+  outline: none;
+  border:none;
+  box-shadow: none;
+  color:white;
+}
+
+.textInput::placeholder {
+    color:gray;
+}
+
+.textInput::-webkit-scrollbar{
+    display:none;
+}

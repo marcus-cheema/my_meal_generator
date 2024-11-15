@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserFormProps } from '../assets/components/UserInfoForm'; // Import UserFormProps
+import { UserFormProps } from '../assets/components/UserInfoForm/UserInfoForm'; // Import UserFormProps
 
 export async function sendMessage(userMessage: string) {
     console.log("I am being sent a message")
