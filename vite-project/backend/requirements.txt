@@ -5,6 +5,6 @@ fuzzywuzzy
 python-Levenshtein  # recommended for better fuzzywuzzy performance
 flask
 flask-cors
+gunicorn
 openai
-re
 python-dotenv

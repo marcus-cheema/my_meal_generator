@@ -1,24 +1,24 @@
 # Backend Dockerfile (Flask)
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
 
-# Copy requirements and install dependencies
-COPY requirements.txt ./ 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the Flask application code
+# Copy Source Code
 COPY . .
 
-# Expose backend port
+# Expose Port
 EXPOSE 5000
 
-# Start the Flask application
-CMD ["python3", "main.py"]
+# Run the app
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+
+
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends \
+#     build-essential \
+#     libpq-dev && \
+#     rm -rf /var/lib/apt/lists/*

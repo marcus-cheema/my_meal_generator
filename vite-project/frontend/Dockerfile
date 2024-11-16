@@ -1,30 +1,26 @@
 # Frontend Dockerfile (Vite/Node)
-FROM node:18 AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package.json ./ 
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./ 
 RUN npm install
 
-# Copy the rest of the frontend source code
-COPY . ./ 
+# Copy Source Code
+COPY . ./
 
-# Build the frontend using Vite
+# Build the frontend w/ Vite
 RUN npm run build
 
 # Production stage
-FROM node:18-slim AS production
-WORKDIR /app
+FROM nginx:alpine AS production
+WORKDIR /usr/share/nginx/html
 
 # Copy built assets from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
+COPY --from=builder /app/dist . 
 
-# Install only production dependencies
-RUN npm install --production
+# Expose Port (nginx default)
+EXPOSE 80
 
-# Expose frontend port
-EXPOSE 3000
-
-# Start the frontend server
-CMD ["node", "run", "preview"]
+# Run the server
+CMD ["nginx", "-g", "daemon off;"]

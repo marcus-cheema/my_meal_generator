@@ -1,13 +1,10 @@
 import pandas as pd 
 from keybert import KeyBERT 
-import numpy as np 
+from fuzzywuzzy import fuzz
 import time
 import csv
 import os
-# from textblob import TextBlob
 import re
-from fuzzywuzzy import fuzz
-from typing import List, Pattern
 
 BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
 BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
@@ -60,7 +57,6 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     topRecipes = [mergedDF.iloc[index] for index in topNIndices]
     topRecipesName = [mergedDF['name'][index] for index in topNIndices]
     topRecipesURL  = [mergedDF['url'][index] for index in topNIndices] 
-    # topRecipesSummary = [mergedDF['summary'][index] for index in topNIndices]
     
     if (nRecipes == 1): recipeStr = f'Here is the best match: \n'
     else: recipeStr = f'Here are {nRecipes} best matches: \n'
@@ -68,9 +64,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     for i in range(nRecipes):
         recipeStr += f'{i + 1}) '
         recipeStr += topRecipesName[i] + '\n'
-        # recipeStr += topRecipesSummary[i] + '\n'
         recipeStr += topRecipesURL[i] + '\n\n'
-    # recipeStr += topRecipesName + '\n'
     
     return recipeStr
 
@@ -134,7 +128,6 @@ def main():
     
     BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dat") # Escape, go to Dat
     BASE_DIR = os.path.abspath(BASE_DIR) # Make path Absolute
-    # print(BASE_DIR)
     
     def loadData():
         embeddedPath = os.path.join(BASE_DIR, 'embedded_recipes.csv') 
@@ -150,7 +143,6 @@ def main():
     mergedDF = preprocessData(recipes, recipeKeyWords)
     mergedPath = os.path.join(BASE_DIR, 'mergedDF.csv')
     mergedDF.to_csv(mergedPath, index=False)
-    # print(isRecipeRequest("Please, my beautiful chatbot, can I please have a recipe that incorporates ..."))
     topRecipes = getTopRecipeMatches(tasteProfile, 2000, 5)
     print(topRecipes)
 
