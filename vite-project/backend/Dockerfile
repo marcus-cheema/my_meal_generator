@@ -1,24 +1,25 @@
-# Backend Dockerfile (Flask)
-FROM python:3.12-slim AS builder
+# Extend ml-base
+FROM marcusacheema/keybert-base:v1.0 AS keybert-stage
+FROM marcusacheema/openai-base:v1.0 AS openai-stage
+
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY --from=keybert-stage /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=openai-stage /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy and install application-specific requirements
+COPY requirements-app.txt .
+RUN pip install --no-cache-dir -r requirements-app.txt
 
-# Copy Source Code
-COPY . .
+# Copy application code
+COPY . /app
 
-# Expose Port
 EXPOSE 5000
 
-# Run the app
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
 
 
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends \
-#     build-essential \
-#     libpq-dev && \
-#     rm -rf /var/lib/apt/lists/*
+# RUN python -c "import openai; print('OpenAI version')"
+# RUN python -c "from keybert import KeyBERT; print('KeyBERT version:')"

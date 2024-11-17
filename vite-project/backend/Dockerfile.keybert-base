@@ -1,0 +1,16 @@
+# Dockerfile.ml-base
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# From ML reqs
+COPY requirements-keybert.txt .
+RUN pip install --no-cache-dir -r requirements-keybert.txt
+
+# Pre-download models if needed
+# RUN python -c "from keybert import KeyBERT; KeyBERT()"

@@ -1,10 +1,8 @@
 pandas
-keybert
 numpy
 fuzzywuzzy
 python-Levenshtein  # recommended for better fuzzywuzzy performance
 flask
 flask-cors
 gunicorn
-openai
 python-dotenv

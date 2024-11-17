@@ -1,4 +1,5 @@
-import pandas as pd 
+import pandas as pd
+
 from keybert import KeyBERT 
 from fuzzywuzzy import fuzz
 import time
@@ -26,7 +27,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
     if len(validCaloricRecipes) < nRecipes:
         raise ValueError(f'There are not nRecipes in selected_recipes_df. Choose value lower than {len(validCaloricRecipes)}')
 
-    print(f'# of Selected Recipes: {len(validCaloricRecipes)}')
+    # print(f'# of Selected Recipes: {len(validCaloricRecipes)}')
     similarityScores = []
     tasteKeyWords = KeyBERT().extract_keywords(tasteProfile) # use keyBert to get the keywords? 
     tasteKeyWords = [word for word, _ in tasteKeyWords]
@@ -47,7 +48,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
             score += fuzz.partial_ratio(word, currKeyWords) / denom
             similarityScores.append([i, score])
     
-    print(f'Fuzzy Algorithm Time: {round(time.time() - start, 3)} seconds')
+    # print(f'Fuzzy Algorithm Time: {round(time.time() - start, 3)} seconds')
     
     similarityScores.sort(key=lambda x: x[1], reverse=True) # sort by highest mean
     
@@ -70,7 +71,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
 
 # === Use Harris-Benedict equation for BMR calculation, w/ Activity Level Multipliers === #
 def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
-    print(sex, age, weight, height, activityLevel)
+    # print(sex, age, weight, height, activityLevel)
     activityMultipliers = {
         0: 1.2,
         1: 1.375,
@@ -89,13 +90,11 @@ def calculateBMR(sex: int, age: int, weight: int, height: int, activityLevel):
         bmr = 447.593 + (9.247 * weightKG) + (3.098 * heightCM) - (4.330 * age)
 
     bmr = bmr * activityMultipliers.get(activityLevel, 1.2) # default 1.2
-    print(round(bmr))
     setUserBMR(round(bmr)) # Whenever this function is called, update the user's BMR
     return round(bmr)
 
 # === Check if User is Requesting for Recipe === #
 def isRecipeRequest(prompt: str) -> bool:
-    print(prompt) 
     recipePatterns = [    
         r'\brecipe(s)? for\b',
         r'\b(how to|how do|how can) (i|you) (make|prepare|cook|bake)\b',
@@ -113,7 +112,7 @@ def isRecipeRequest(prompt: str) -> bool:
     prompt = prompt.lower()
     for pattern in recipePatterns:
         if (re.search(pattern, prompt)): # REGEX, then Prompt
-            print("User is Requesting a Recipe")
+            # print("User is Requesting a Recipe")
             return True
     return False
 
@@ -144,7 +143,6 @@ def main():
     mergedPath = os.path.join(BASE_DIR, 'mergedDF.csv')
     mergedDF.to_csv(mergedPath, index=False)
     topRecipes = getTopRecipeMatches(tasteProfile, 2000, 5)
-    print(topRecipes)
 
 # This block checks if the script is being run directly, not imported as a module
 if __name__ == "__main__":

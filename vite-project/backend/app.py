@@ -1,10 +1,11 @@
 import os
+import sys
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import openai
 from dotenv import load_dotenv
-from utilities.allRecipeMethods import getTopRecipeMatches, calculateBMR, isRecipeRequest
-from utilities.allRecipeMethods import userBMR
+
+from utilities.allRecipeMethods import getTopRecipeMatches, calculateBMR, isRecipeRequest, userBMR
 
 app = Flask(__name__)
 cors = CORS(app, origins='*') # cross origin resource sharing
@@ -60,11 +61,8 @@ def correctUserPrompt(prompt: str) -> str:
 def handlePrompt(prompt: str) -> str:
     try:
         correctedPrompt = correctUserPrompt(prompt)
-        print("CORRECTED PROMPT:", correctedPrompt)
         if isRecipeRequest(correctedPrompt):
-            print(userBMR)
             recipes = getTopRecipeMatches(prompt, userBMR, 3) # tasteProfile, BMR, and recipes to return (1 default)
-            print(recipes)
             return recipes
         else:
             completion = openai.ChatCompletion.create(
@@ -100,12 +98,10 @@ def send_message():
     
     user_message_ID = len(user_messages) + 1
     user_messages[user_message_ID] = user_message
-    print(user_messages)
 
     bot_response_ID = len(bot_responses) + 1
 
     bot_responses[bot_response_ID] = handlePrompt(user_message)
-    print(bot_responses)
     return jsonify({"response": user_message})
 
 @app.route("/api/calculate_bmr", methods=['POST'])
@@ -127,7 +123,6 @@ def calculate_bmr():
 
     currBMR = calculateBMR(intSex, intAge, intWeight, intHeight, intActivityLevel) # don't change types of given vars
     setUserBMR(currBMR) # update BMR globally
-    print(userBMR)
     return jsonify({"response": currBMR})
 
 if __name__ == "__main__":
