@@ -7,19 +7,15 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
-
-# Build the frontend w/ Vite
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine AS production
-WORKDIR /usr/share/nginx/html
+# Production
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist . 
+FROM node:18-alpine
+WORKDIR /app
 
-# Expose Port (nginx default)
-EXPOSE 80
+COPY --from=builder /app/dist ./dist
 
-# Run the server
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
+
+CMD ["npx", "serve", "-s", "dist", "-l", "3000"]

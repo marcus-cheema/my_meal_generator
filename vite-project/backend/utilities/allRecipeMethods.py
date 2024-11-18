@@ -1,6 +1,4 @@
 import pandas as pd
-
-from keybert import KeyBERT 
 from fuzzywuzzy import fuzz
 import time
 import csv
@@ -15,7 +13,7 @@ mergedDF = pd.read_csv(mergedPath) # Global Pandas DataFrame
 userBMR = 2000 # Global Default
 
 # === Return Top Matching Recipes Based on User Input === #
-def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
+def getTopRecipeMatches(tasteProfile: list, bmr: int, nRecipes: int) -> str:
     acceptedError = .3 # alter value... (should be < 1)
     caloriesPerMeal = bmr * 0.3
     caloricDeviation = caloriesPerMeal * acceptedError
@@ -29,9 +27,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
 
     # print(f'# of Selected Recipes: {len(validCaloricRecipes)}')
     similarityScores = []
-    tasteKeyWords = KeyBERT().extract_keywords(tasteProfile) # use keyBert to get the keywords? 
-    tasteKeyWords = [word for word, _ in tasteKeyWords]
-    denom = len(tasteKeyWords)
+    denom = len(tasteProfile)
     if denom == 0:
         raise ValueError("No KeyWords extracted from the User's Taste Profile!")
     
@@ -44,7 +40,7 @@ def getTopRecipeMatches(tasteProfile: str, bmr: int, nRecipes: int) -> str:
         except AttributeError as e: continue
             
         score = 0
-        for word in tasteKeyWords: # Go through user preferences
+        for word in tasteProfile: # Go through user preferences
             score += fuzz.partial_ratio(word, currKeyWords) / denom
             similarityScores.append([i, score])
     

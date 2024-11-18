@@ -18,6 +18,30 @@ def setUserBMR(bmr): # To update Global myBMR
     global userBMR
     userBMR = bmr
 
+    # Function to embed the user prompt and extract important keywords
+def embedUserPrompt(prompt: str) -> list:
+    corrected_prompt = correctUserPrompt(prompt)
+    
+    completion = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are an assistant that extracts the five most important or relevant words from a given text."
+            },
+            {
+                "role": "user",
+                "content": f"Extract the 5 most important words from the following text: {corrected_prompt}"
+            }
+        ]
+    )
+    
+    response = completion.choices[0].message.content.strip()
+    print(len(completion.choices))
+    importantWords = response.split(',')  # Assuming OpenAI will return comma-separated words
+    print(importantWords)
+    return [word.strip() for word in importantWords[:5]]
+
 # === Verifies if Prompt is On Topic, then Corrects Spelling === #
 def correctUserPrompt(prompt: str) -> str:
     completion = openai.ChatCompletion.create(
@@ -62,7 +86,8 @@ def handlePrompt(prompt: str) -> str:
     try:
         correctedPrompt = correctUserPrompt(prompt)
         if isRecipeRequest(correctedPrompt):
-            recipes = getTopRecipeMatches(prompt, userBMR, 3) # tasteProfile, BMR, and recipes to return (1 default)
+            embeddedProfile = embedUserPrompt(correctedPrompt)
+            recipes = getTopRecipeMatches(embeddedProfile, userBMR, 3) # tasteProfile, BMR, and recipes to return (1 default)
             return recipes
         else:
             completion = openai.ChatCompletion.create(
@@ -125,5 +150,7 @@ def calculate_bmr():
     setUserBMR(currBMR) # update BMR globally
     return jsonify({"response": currBMR})
 
+def main():
+    print(embedUserPrompt("I want a recipe with bananas, coconuts, beans, and rice"))
 if __name__ == "__main__":
     app.run(debug=True, port=8080) # arbitrary port
