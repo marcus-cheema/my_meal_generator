@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./ 
 RUN npm install
 
-# Copy Source Code
-COPY . ./
+COPY . .
 
 # Build the frontend w/ Vite
 RUN npm run build

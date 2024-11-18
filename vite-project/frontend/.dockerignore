@@ -1,23 +1,5 @@
-# General
-*.pyc
-*.pyo
-*.pyd
-__pycache__
-*.env
-*.DS_Store
-*.log
-
-# Flask
-instance/
-*.sqlite3
-
-# Node.js/React
 node_modules
-/build
-/dist
-npm-debug.log
-yarn-error.log
-*.tsbuildinfo
-
-# Version control
+dist
 .git
+.env
+*.log

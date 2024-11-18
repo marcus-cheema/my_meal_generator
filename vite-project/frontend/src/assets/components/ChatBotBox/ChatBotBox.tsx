@@ -25,8 +25,7 @@ function ChatBotBox() {
             setSubmittedMessages([...submittedMessages, userMessage]); // update the message display textbox
             setUserMessageCount(userMessageCount + 1); 
             try {
-                let sendMessageResponse = await sendMessage(userMessage);
-                console.log(sendMessageResponse);
+                await sendMessage(userMessage);
 
                 let botResponse = await getBotResponse();
                 setBotResponses([...botResponses, botResponse]);
@@ -34,8 +33,6 @@ function ChatBotBox() {
             } catch(error) {
                 console.error("Error sending message", error);
             }
-        // setUserMessage(''); // delete typed message after submission
-        console.log("We have " + botResponseCount + " messages"); // DEBUG
         }
     }
 
