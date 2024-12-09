@@ -8,7 +8,7 @@ function App() {
     <>
       <header className="app-header">
         <img src={logo} alt="Logo" className="app-logo"/>
-        </header>
+      </header>
       <div>
         <ChatBotBox/>
       </div>

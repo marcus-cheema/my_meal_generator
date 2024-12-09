@@ -18,7 +18,7 @@ def setUserBMR(bmr): # To update Global myBMR
     global userBMR
     userBMR = bmr
 
-    # Function to embed the user prompt and extract important keywords
+# === Embed User Prompt and Extract <= 5 KeyWords === #
 def embedUserPrompt(prompt: str) -> list:
     corrected_prompt = correctUserPrompt(prompt)
     
@@ -37,41 +37,49 @@ def embedUserPrompt(prompt: str) -> list:
     )
     
     response = completion.choices[0].message.content.strip()
-    print(len(completion.choices))
+    # print(len(completion.choices))
     importantWords = response.split(',')  # Assuming OpenAI will return comma-separated words
-    print(importantWords)
+    # print(importantWords)
     return [word.strip() for word in importantWords[:5]]
 
 # === Verifies if Prompt is On Topic, then Corrects Spelling === #
-def correctUserPrompt(prompt: str) -> str:
+def isRecipeRequest(prompt: str) -> str:
+    print("HEREEE")
     completion = openai.ChatCompletion.create(
         model="gpt-4",
         messages=[
             {
                 "role": "system",
-                "content": ("You are a spell-checking assistant for recipe and food-related prompts ONLY. "
-                          "First, verify if the input is related to recipes, cooking, food, ingredient substitutes, "
-                          "or general health/nutrition. If the input is OFF-TOPIC, respond EXACTLY with: "
-                          "'I can only assist with recipe, cooking, and nutrition-related questions.' "
-                          "If the input IS relevant, your ONLY task is to correct misspelled words. Do not make "
-                          "any other changes. Do not add punctuation, do not rephrase, do not add or remove words, "
-                          "do not change grammar, and do not provide any additional commentary.")
+                "content": ("You are responsible for determining whether an input is related to recipe and correcting the prompt if needed. "
+                            "First, verify if the input is related to recipes, cooking, food, ingredient subsitutes"
+                            "If the input is OFF-TOPIC, respond with a 0 for classification and an empty string for the correction."
+                            "If the input is ON-TOPIC, but NOT requesting a recipe, respond with 0 for classification and an empty string for the correction"
+                            "If the input is ON-TOPIC and requesting a recipe, respond with a 1 for classification and their corrected prompt for the recipe."
+                            "Format your response as a JSON object with keys 'classification' and 'correction'.")
             },
             {
                 "role": "user",
-                "content": "Example off-topic: 'How do I tie my shoes'"
+                "content": "Example off-topic: 'I want a recipe that has a car tire, and can tie my shoe'"
             },
             {
                 "role": "assistant",
-                "content": "I can only assist with recipe, cooking, and nutrition-related questions."
+                "content": '{"classification": 0, "correction": ""}'
             },
             {
                 "role": "user",
-                "content": "Example on-topic: 'How to make choclate chip cookeis'"
+                "content": "Example on-topic: 'How to mayke chocltee chp cookies?'"
             },
             {
                 "role": "assistant",
-                "content": "How to make chocolate chip cookies"
+                "content": '{"classification": 1, "correction": "How to make chocolate chip cookies?"}'
+            },
+            {
+                "role": "user",
+                "content": "Example on-topic, but not requesting: 'I want to know if I should use olive oil instead of mustard oil?'"
+            },
+            {
+                "role": "assistant",
+                "content": '{"classification": 0, "correction": ""}'
             },
             {
                 "role": "user",
@@ -79,24 +87,37 @@ def correctUserPrompt(prompt: str) -> str:
             }
         ]
     )
-    return completion.choices[0].message.content
+    response = completion.choices[0].message.content
+    try:
+        result = eval(response)
+        return result
+    except (SyntaxError, ValueError):
+        return {"classification": 0, "correction": ""}
 
-# Handle General Prompts
+# === Handle General Prompts === #
 def handlePrompt(prompt: str) -> str:
     try:
-        correctedPrompt = correctUserPrompt(prompt)
-        if isRecipeRequest(correctedPrompt):
+        response = isRecipeRequest(prompt)
+        classification = response["classification"]
+        correctedPrompt = response["correction"]
+        
+        # User is requesting a recipe
+        if classification == 1: 
             embeddedProfile = embedUserPrompt(correctedPrompt)
-            recipes = getTopRecipeMatches(embeddedProfile, userBMR, 3) # tasteProfile, BMR, and recipes to return (1 default)
+            recipes = getTopRecipeMatches(embeddedProfile, userBMR, 3) # tasteprofile, bmr, and recipes to return (1 default)
             return recipes
-        else:
+        
+        # Not requesting a recipe or off-topic. 
+        else: 
             completion = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
                     {
                         "role": "system", 
                         "content": ("You are an assistant that should only respond to questions regarding recipes, "
-                        "ingredient subsitutes, and general health.")
+                                    "ingredient subsitutes, and general health. If a user greets you or says something " 
+                                    "casual like 'hi' or 'hello,' respond warmly and do not apologize. Let them know they "
+                                    "can ask questions about recipes or health topics.")
                     },
                     {
                         "role": "user",
@@ -108,26 +129,29 @@ def handlePrompt(prompt: str) -> str:
     except Exception as e:
         return str(e)
 
-user_messages, bot_responses = {}, {} # global
+userMessages, botResponses = {}, {} # global
 
 @app.route("/api/bot_response", methods=['GET']) # GET data from the backend server -> Frontend
 def bot_response():
-    latest_message_id = max(bot_responses.keys(), default=None)
-    bot_response = bot_responses.get(latest_message_id, "")
-    return jsonify({"response": bot_response})
+    latestMessageId = max(botResponses.keys(), default=None)
+    botResponse = botResponses.get(latestMessageId, "")
+    return jsonify({"response": botResponse})
 
 @app.route("/api/send_message", methods=['POST']) # POST data from the frontend -> backend
 def send_message():
     data = request.json
-    user_message = data.get("message")
+    userMessage = data.get("message")
     
-    user_message_ID = len(user_messages) + 1
-    user_messages[user_message_ID] = user_message
+    userMessageId = len(userMessages) + 1
+    userMessages[userMessageId] = userMessage
 
-    bot_response_ID = len(bot_responses) + 1
+    botResponseId = len(botResponses) + 1
 
-    bot_responses[bot_response_ID] = handlePrompt(user_message)
-    return jsonify({"response": user_message})
+    botResponses[botResponseId] = handlePrompt(userMessage)
+    # botResponses[botResponseId] = isRecipeRequest(userMessage)
+    print(botResponses[botResponseId])
+
+    return jsonify({"response": botResponses[botResponseId]})
 
 @app.route("/api/calculate_bmr", methods=['POST'])
 def calculate_bmr():

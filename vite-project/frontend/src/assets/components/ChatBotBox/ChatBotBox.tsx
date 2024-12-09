@@ -64,7 +64,6 @@ function ChatBotBox() {
                 <TextInput userMessage={userMessage} setUserMessage={setUserMessage} onKeyDown={handleEnter}/>
                 <InputButton handleClick={ handleClick } />
             </div>
-
         </div>
     )
 }
