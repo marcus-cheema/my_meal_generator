@@ -2,9 +2,12 @@
 
 ## Receive recipe recommendations tailored to your message and, optionally, your daily caloric needs from AllRecipes.com.
 
-As a student athlete at Emory University, I eat a ton! I wanted a software that could give me new, tasty recipes that take my caloric needs into account. 
-Tasty, low-calorie meals are all over social media nowadays, but such diets are not all encompassing.
-What's more, by leveraging OpenAI's memory, ingredient subsitutions and general recipe inquiries are possible and seamless. 
+As a student athlete at Emory University, I have a big appetite! I wanted a software that could give me new, delicious recipes tailored to my daily caloric needs. 
+
+While low-calorie meals are all over on social media nowadays, it's important to recognize that low-calorie recommendations aren't what everyone needs. That's where Mindful Meals comes in - it offers tasty, personalized meals for weight loss, maintenance, and weight gain, ensuring a balanced approach to nutrition.
+
+Plus, by leveraging OpenAI’s memory, users can effortlessly request ingredient substitutions and ask general recipe-related questions for a more customized cooking experience.
+
 
 * Vite, Typescript, React, and Bootstrap frontend for ChatBot UI
 * Flask backend for REST API calls
