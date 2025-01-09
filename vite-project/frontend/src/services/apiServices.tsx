@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { UserFormProps } from '../assets/components/UserInfoForm/UserInfoForm'; // Import UserFormProps
 
+let BASE_URL = 'http://18.191.65.24'; // AWS
+// let BASE_URL = 'http://127.0.0.1:8080' // Local
+
 export async function sendMessage(userMessage: string) {
-    return axios.post('http://127.0.0.1:8080/api/send_message', {
+    return axios.post(`${BASE_URL}/api/send_message`, {
       message: userMessage
     })
     .then(function(response) {
@@ -14,7 +17,7 @@ export async function sendMessage(userMessage: string) {
 }
 
 export async function getBotResponse() {
-    return axios.get('http://127.0.0.1:8080/api/bot_response') // backend URL
+    return axios.get(`${BASE_URL}/api/bot_response`) // backend URL
       .then(function(response) {
         return response.data.response
       })
@@ -24,7 +27,7 @@ export async function getBotResponse() {
 }
 
 export async function getBmrCalculation(formData: UserFormProps) {
-  return axios.post('http://127.0.0.1:8080/api/calculate_bmr', formData)
+  return axios.post(`${BASE_URL}/api/calculate_bmr`, formData)
     .then(function(response) {
       return response;
     })

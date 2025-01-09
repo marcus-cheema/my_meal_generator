@@ -1,0 +1,47 @@
+services:
+  frontend:
+    image: "marcusacheema/frontend:latest"
+    container_name: frontend
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: "marcusacheema/backend:latest"
+    container_name: backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env  # Specify the path to the .env file
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mount your custom nginx.conf file
+    depends_on:
+      - frontend
+      - backend
+
+
+{
+    worker_connections 1024;  # Defines the maximum number of simultaneous connections per worker
+}
+
+http {
+        server {
+                listen 80;
+
+                # API requests to the backend service
+                location /api/ {
+                        proxy_pass http://backend:8080;  # Ensure the backend service is on the same Docker network
+                }
+
+                # All other requests go to the frontend service
+                location / {
+                        proxy_pass http://frontend:3000;  # Ensure the frontend service is on the same Docker network
+                }
+        }
+}            
+                                                                                 
